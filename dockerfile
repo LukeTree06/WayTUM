@@ -1,4 +1,3 @@
-# Use a slim Node.js image to keep it lightweight
 FROM node:20-slim
 
 WORKDIR /usr/src/app
