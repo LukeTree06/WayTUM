@@ -17,8 +17,8 @@ docker compose up -d
 
 2 options:
 
-1. When started with claude: do what you are told by the ai
+1. When started with claude: Do what you are told by the ai
 
     ![image](image.png)
 
-2. Visit [localhost:3000](localhost:3000)
+2. When started with docker: Visit [localhost:3000](localhost:3000)
