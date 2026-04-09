@@ -1,0 +1,15 @@
+services:
+  app:
+
+    extends:
+      file: compose.yaml
+      service: app
+    
+    environment:
+      - NODE_ENV=development
+    
+    command: node --watch server.js
+    
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules

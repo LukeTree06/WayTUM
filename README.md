@@ -19,6 +19,6 @@ docker compose up -d
 
 1. When started with claude: Do what you are told by the ai
 
-    ![image](image.png)
+    ![image](./docs/image.png)
 
 2. When started with docker: Visit [localhost:3000](localhost:3000)
