@@ -4,3 +4,4 @@ dockerfile
 compose.yaml
 README.md
 docs
+.wrangler
