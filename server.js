@@ -7,48 +7,41 @@ const MVG_BASE = 'https://www.mvg.de/api/bgw-pt/v3';
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Proxy MVG API to avoid CORS issues
-app.get('/api/locations', async (req, res) => {
-  try {
-    const params = new URLSearchParams(req.query);
-    const response = await fetch(`${MVG_BASE}/locations?${params}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch locations' });
-  }
-});
+// 1. Define allowed endpoints to secure your proxy
+const ALLOWED_ENDPOINTS = [
+  'locations', 
+  'departures', 
+  'routes', 
+  'stations/nearby'
+];
 
-app.get('/api/departures', async (req, res) => {
-  try {
-    const params = new URLSearchParams(req.query);
-    const response = await fetch(`${MVG_BASE}/departures?${params}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch departures' });
-  }
-});
+// 2. Use a wildcard route to catch all /api/ requests
+app.get('/api/*', async (req, res) => {
+  // req.params[0] captures whatever matches the '*' in the route path
+  const endpoint = req.params[0]; 
 
-app.get('/api/routes', async (req, res) => {
-  try {
-    const params = new URLSearchParams(req.query);
-    const response = await fetch(`${MVG_BASE}/routes?${params}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch routes' });
+  // 3. Block any requests that aren't in your allowlist
+  if (!ALLOWED_ENDPOINTS.includes(endpoint)) {
+    return res.status(404).json({ error: 'Endpoint not found' });
   }
-});
 
-app.get('/api/stations/nearby', async (req, res) => {
   try {
     const params = new URLSearchParams(req.query);
-    const response = await fetch(`${MVG_BASE}/stations/nearby?${params}`);
+    const response = await fetch(`${MVG_BASE}/${endpoint}?${params}`);
+    
+    // Add a check in case the upstream MVG API goes down or errors out
+    if (!response.ok) {
+        throw new Error(`Upstream API responded with status: ${response.status}`);
+    }
+
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch nearby stations' });
+    console.error(`Proxy Error (${endpoint}):`, err.message);
+    
+    // Format the error message dynamically (e.g., "stations/nearby" -> "stations nearby")
+    const formattedEndpoint = endpoint.replace('/', ' ');
+    res.status(500).json({ error: `Failed to fetch ${formattedEndpoint}` });
   }
 });
 
